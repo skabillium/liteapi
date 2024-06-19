@@ -1,0 +1,53 @@
+info:
+  contact: {}
+paths:
+  /hotels:
+    get:
+      description: Get rate information for specified hotels
+      parameters:
+      - description: Check-in date
+        in: query
+        name: checkin
+        required: true
+        type: string
+      - description: Check-out date
+        in: query
+        name: checkout
+        required: true
+        type: string
+      - description: Currency for payment
+        in: query
+        name: currency
+        required: true
+        type: string
+      - description: Nationality of guests
+        in: query
+        name: guestNationality
+        required: true
+        type: string
+      - description: Comma separated list of hotel ids to check
+        in: query
+        name: hotelIds
+        required: true
+        type: string
+      - description: Occupancies to check, how many rooms, adults or children
+        in: query
+        name: occupancies
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Hotels
+  /status:
+    get:
+      description: Check the status of the server
+      responses:
+        "200":
+          description: OK
+      tags:
+      - Health
+swagger: "2.0"

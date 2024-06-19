@@ -1,6 +1,6 @@
 package hotels
 
-import "skabillium/liteapi/clients"
+import "skabillium/liteapi/cmd/clients"
 
 type HotelsHandlers struct {
 	hbc *clients.HotelBedsClient

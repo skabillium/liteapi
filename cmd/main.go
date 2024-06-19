@@ -3,14 +3,19 @@ package main
 import (
 	"errors"
 	"os"
-	"skabillium/liteapi/api/health"
-	"skabillium/liteapi/api/hotels"
-	"skabillium/liteapi/clients"
+	"skabillium/liteapi/cmd/api/health"
+	"skabillium/liteapi/cmd/api/hotels"
+	"skabillium/liteapi/cmd/clients"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+
+	_ "skabillium/liteapi/cmd/api/docs"
+
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Environment struct {
@@ -33,17 +38,17 @@ func readEnv() (*Environment, error) {
 	}
 
 	if env.HotelBedsUrl == "" {
-		return nil, errors.New("not HotelBeds url provided")
+		return nil, errors.New("no HotelBeds url provided")
 	}
 	if !strings.HasPrefix(env.HotelBedsUrl, "http") {
 		return nil, errors.New("invalid format for HotelBeds url")
 	}
 
 	if env.HotelBedsApiKey == "" {
-		return nil, errors.New("not HotelBeds api key provided")
+		return nil, errors.New("no HotelBeds api key provided")
 	}
 	if env.HotelBedsSecret == "" {
-		return nil, errors.New("not HotelBeds secret provided")
+		return nil, errors.New("no HotelBeds secret provided")
 	}
 
 	return env, nil
@@ -61,6 +66,7 @@ func main() {
 
 	hotelsHanlders := hotels.NewHotelsHanlders(hbc)
 
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.GET("/health/status", health.GetStatusHandler)
 	r.GET("/hotels", hotelsHanlders.GetHotelsHandler)
 

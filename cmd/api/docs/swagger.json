@@ -1,0 +1,81 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/hotels": {
+            "get": {
+                "description": "Get rate information for specified hotels",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Hotels"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Check-in date",
+                        "name": "checkin",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Check-out date",
+                        "name": "checkout",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Currency for payment",
+                        "name": "currency",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Nationality of guests",
+                        "name": "guestNationality",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Comma separated list of hotel ids to check",
+                        "name": "hotelIds",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Occupancies to check, how many rooms, adults or children",
+                        "name": "occupancies",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/status": {
+            "get": {
+                "description": "Check the status of the server",
+                "tags": [
+                    "Health"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    }
+}
