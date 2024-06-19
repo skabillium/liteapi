@@ -5,17 +5,13 @@ DOCS_DIR = ./cmd/api/docs
 
 install:
 	go mod download
+	go install github.com/swaggo/swag/cmd/swag@latest
 
 clean:
 	rm -rf ./bin
 
 docs:
 	swag init --dir ./cmd --output ${DOCS_DIR}
-
-tests:
-	go test ${CMD}/db
-	go test ${CMD}/resp
-	go test ${CMD}
 
 dev:
 	go run ${CMD}
