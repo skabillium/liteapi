@@ -53,7 +53,7 @@ func (h *HotelsHandlers) GetHotelsHandler(c *gin.Context) {
 		},
 	}
 
-	getHotels, request, response, err := h.hbc.GetHotels(getHotelsReq)
+	getHotels, request, response, err := h.hbc.GetHotelRates(getHotelsReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error while connecting to supplier API",
@@ -88,6 +88,7 @@ func (h *HotelsHandlers) GetHotelsHandler(c *gin.Context) {
 		data[i].Price = float32(price)
 	}
 
+	// Format the response according to spec
 	c.JSON(http.StatusOK, gin.H{
 		"data": data,
 		"supplier": gin.H{
@@ -97,12 +98,14 @@ func (h *HotelsHandlers) GetHotelsHandler(c *gin.Context) {
 	})
 }
 
+// Struct that holds the response data
 type HotelData struct {
 	HotelId  string  `json:"hotelId"`
 	Currency string  `json:"currency"`
 	Price    float32 `json:"price"`
 }
 
+// Allowed query params
 type GetHotelsQuery struct {
 	CheckIn          time.Time
 	CheckOut         time.Time
@@ -120,6 +123,7 @@ func (q *GetHotelsQuery) FormatCheckout() string {
 	return q.CheckOut.Format(time.DateOnly)
 }
 
+// Read request query params into a GetHotelsQuery instance
 func parseGetHotelsQuery(c *gin.Context) (*GetHotelsQuery, error) {
 	q := &GetHotelsQuery{}
 	checkin, err := time.Parse(time.DateOnly, c.Query("checkin"))
@@ -133,6 +137,7 @@ func parseGetHotelsQuery(c *gin.Context) (*GetHotelsQuery, error) {
 	q.CheckIn = checkin
 	q.CheckOut = checkout
 
+	// Parse hotel ids as integers
 	hotelsStr := strings.Split(c.Query("hotelIds"), ",")
 	q.HotelIds = make([]int, len(hotelsStr))
 	for i := 0; i < len(hotelsStr); i++ {
@@ -143,6 +148,7 @@ func parseGetHotelsQuery(c *gin.Context) (*GetHotelsQuery, error) {
 		q.HotelIds[i] = id
 	}
 
+	// Parse occupancies json
 	err = json.Unmarshal([]byte(c.Query("occupancies")), &q.Occupancies)
 	if err != nil {
 		return nil, err
@@ -150,6 +156,7 @@ func parseGetHotelsQuery(c *gin.Context) (*GetHotelsQuery, error) {
 	return q, nil
 }
 
+// Performs validation on a GetHotelsQuery
 func validateGetHotelsQuery(q *GetHotelsQuery) error {
 	now := time.Now()
 	if now.After(q.CheckIn) {

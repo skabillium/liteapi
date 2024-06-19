@@ -12,38 +12,10 @@ import (
 	"time"
 )
 
-type StayOpts struct {
-	CheckIn  string `json:"checkIn"`
-	CheckOut string `json:"checkOut"`
-}
-
-type HotelOpts struct {
-	Hotel []int `json:"hotel"`
-}
-
-type Occupancy struct {
-	Rooms    int `json:"rooms"`
-	Adults   int `json:"adults"`
-	Children int `json:"children"`
-}
-
-type GetHotelsRequest struct {
-	Stay        StayOpts    `json:"stay"`
-	Occupancies []Occupancy `json:"occupancies"`
-	Hotels      HotelOpts   `json:"hotels"`
-}
-
-type GetHotelsResponse struct {
-	Hotels struct {
-		Total  int `json:"total"`
-		Hotels []struct {
-			Code     int    `json:"code"`
-			Currency string `json:"currency"`
-			MinRate  string `json:"minRate"`
-		} `json:"hotels"`
-	} `json:"hotels"`
-}
-
+// Struct that holds all functionality specific to the HotelBeds API like:
+// - Endpoints
+// - Auth
+// - Response parsing and validation
 type HotelBedsClient struct {
 	apiKey     string
 	secret     string
@@ -51,6 +23,8 @@ type HotelBedsClient struct {
 	httpClient http.Client
 }
 
+// Instantiates a new HotelBedsClient, this is supposed to be called only once (on application startup).
+// The client instance is meant to be shared across the server.
 func NewHotelBedsClient(apikey, secret, apiAddress string, timeout time.Duration) *HotelBedsClient {
 	return &HotelBedsClient{
 		apiKey:     apikey,
@@ -66,7 +40,8 @@ func (c *HotelBedsClient) getHashSum() string {
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
-func (c *HotelBedsClient) GetHotels(r GetHotelsRequest) (getHotels *GetHotelsResponse, request []byte, response []byte, err error) {
+// Fetches the hotels' rates for the specified bookings
+func (c *HotelBedsClient) GetHotelRates(r GetHotelsRequest) (getHotels *GetHotelsResponse, request []byte, response []byte, err error) {
 	request, err = json.Marshal(r)
 	if err != nil {
 		return
@@ -104,4 +79,38 @@ func (c *HotelBedsClient) GetHotels(r GetHotelsRequest) (getHotels *GetHotelsRes
 	}
 	getHotels = &hotels
 	return
+}
+
+type StayOpts struct {
+	CheckIn  string `json:"checkIn"`
+	CheckOut string `json:"checkOut"`
+}
+
+type HotelOpts struct {
+	Hotel []int `json:"hotel"`
+}
+
+type Occupancy struct {
+	Rooms    int `json:"rooms"`
+	Adults   int `json:"adults"`
+	Children int `json:"children"`
+}
+
+// Request structure for GET /hotels
+type GetHotelsRequest struct {
+	Stay        StayOpts    `json:"stay"`
+	Occupancies []Occupancy `json:"occupancies"`
+	Hotels      HotelOpts   `json:"hotels"`
+}
+
+// Response structure for GET /hotels
+type GetHotelsResponse struct {
+	Hotels struct {
+		Total  int `json:"total"`
+		Hotels []struct {
+			Code     int    `json:"code"`
+			Currency string `json:"currency"`
+			MinRate  string `json:"minRate"`
+		} `json:"hotels"`
+	} `json:"hotels"`
 }
