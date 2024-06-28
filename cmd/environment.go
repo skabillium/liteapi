@@ -3,6 +3,7 @@ package main
 import (
 	"cmp"
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 
@@ -45,7 +46,7 @@ func loadEnv() (*Environment, error) {
 		return nil, errors.New("no HotelBeds url provided")
 	}
 	if !strings.HasPrefix(env.HotelBedsUrl, "http") {
-		return nil, errors.New("invalid format for HotelBeds url")
+		return nil, fmt.Errorf("invalid format for HotelBeds url: %s", env.HotelBedsUrl)
 	}
 
 	if env.HotelBedsApiKey == "" {
