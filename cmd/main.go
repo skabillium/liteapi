@@ -23,12 +23,10 @@ func main() {
 	r := gin.Default()
 
 	hbc := clients.NewHotelBedsClient(env.HotelBedsApiKey, env.HotelBedsSecret, env.HotelBedsUrl, 10*time.Second)
-
-	hotelsHanlders := hotels.NewHotelsHanlders(hbc)
+	hotels.RegisterHotelHandlers(r, hbc)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.GET("/health/status", health.GetStatusHandler)
-	r.GET("/hotels", hotelsHanlders.GetHotelsHandler)
 
 	r.Run(":" + env.Port)
 }

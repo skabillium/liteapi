@@ -7,6 +7,7 @@ import (
 	"skabillium/liteapi/cmd/clients"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,7 @@ import (
 // @Param hotelIds query string true "Comma separated list of hotel ids to check"
 // @Param occupancies query string true "Occupancies to check, how many rooms, adults or children"
 // @Router /hotels [get]
-func (h *HotelsHandlers) GetHotelsHandler(c *gin.Context) {
+func GetHotelsHandler(c *gin.Context, client clients.BookingClient, mu *sync.RWMutex) {
 	query, err := parseGetHotelsQuery(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -53,7 +54,11 @@ func (h *HotelsHandlers) GetHotelsHandler(c *gin.Context) {
 		},
 	}
 
-	getHotels, request, response, err := h.hbc.GetHotelRates(getHotelsReq)
+	// Protect client with a mutex
+	mu.RLock()
+	getHotels, request, response, err := client.GetHotelRates(getHotelsReq)
+	mu.RUnlock()
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Error while connecting to supplier API",

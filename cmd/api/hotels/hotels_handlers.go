@@ -1,14 +1,16 @@
 package hotels
 
-import "skabillium/liteapi/cmd/clients"
+import (
+	"skabillium/liteapi/cmd/clients"
+	"sync"
 
-// All /hotels handlers need to share some state like the HotelBedsClient instance
-// so they are all aggreagated under the HotelHanlders struct
-type HotelsHandlers struct {
-	hbc *clients.HotelBedsClient
-}
+	"github.com/gin-gonic/gin"
+)
 
-// Instantiate a HotelHanlders struct with a HotelBeds client
-func NewHotelsHanlders(hbc *clients.HotelBedsClient) *HotelsHandlers {
-	return &HotelsHandlers{hbc: hbc}
+// Register endpoints for "/hotels" group, also handle access control for booking client using a mutex
+func RegisterHotelHandlers(r *gin.Engine, client clients.BookingClient) {
+	var mu sync.RWMutex
+	hotelsGroup := r.Group("/hotels")
+
+	hotelsGroup.GET("/", func(ctx *gin.Context) { GetHotelsHandler(ctx, client, &mu) })
 }
