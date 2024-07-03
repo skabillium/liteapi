@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/joho/godotenv"
@@ -14,7 +15,7 @@ const DefaultPort = "8080"
 
 type Environment struct {
 	GoEnv           string
-	Port            string
+	Port            int
 	HotelBedsUrl    string
 	HotelBedsApiKey string
 	HotelBedsSecret string
@@ -30,7 +31,11 @@ func loadEnv() (*Environment, error) {
 			return nil, err
 		}
 	}
-	port := cmp.Or(os.Getenv("PORT"), DefaultPort)
+	portStr := cmp.Or(os.Getenv("PORT"), DefaultPort)
+	port, err := strconv.Atoi(portStr)
+	if err != nil || port <= 0 {
+		return nil, fmt.Errorf("invalid port '%s', port needs to be a positive integer", portStr)
+	}
 
 	// Validate environment
 	env := &Environment{

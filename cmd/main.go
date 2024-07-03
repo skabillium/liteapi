@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"skabillium/liteapi/cmd/api/health"
 	"skabillium/liteapi/cmd/api/hotels"
 	"skabillium/liteapi/cmd/clients"
@@ -28,5 +29,5 @@ func main() {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.GET("/health/status", health.GetStatusHandler)
 
-	r.Run(":" + env.Port)
+	r.Run(fmt.Sprintf(":%d", env.Port))
 }
