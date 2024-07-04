@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	appErrors "skabillium/liteapi/cmd/api/errors"
 	"skabillium/liteapi/cmd/clients"
 	"strconv"
 	"strings"
@@ -27,18 +28,18 @@ import (
 func GetHotelsHandler(c *gin.Context, client clients.BookingClient, mu *sync.RWMutex) {
 	query, err := parseGetHotelsQuery(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Error while parsing query params",
-			"error":   err.Error(),
+		c.JSON(http.StatusBadRequest, appErrors.ApiError{
+			Message: "Error while parsing query params",
+			Error:   err.Error(),
 		})
 		return
 	}
 
 	err = validateGetHotelsQuery(query)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Error while validating query params",
-			"error":   err.Error(),
+		c.JSON(http.StatusBadRequest, appErrors.ApiError{
+			Message: "Error while validating query params",
+			Error:   err.Error(),
 		})
 		return
 	}
@@ -60,12 +61,14 @@ func GetHotelsHandler(c *gin.Context, client clients.BookingClient, mu *sync.RWM
 	mu.RUnlock()
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Error while connecting to supplier API",
-			"error":   err.Error(),
-			"supplier": gin.H{
-				"request":  string(request),
-				"response": string(response),
+		c.JSON(http.StatusInternalServerError, appErrors.SupplierError{
+			ApiError: appErrors.ApiError{
+				Message: "Error while connecting to supplier API",
+				Error:   err.Error(),
+			},
+			Supplier: appErrors.SupplierData{
+				Request:  string(request),
+				Response: string(response),
 			},
 		})
 		return
@@ -77,12 +80,14 @@ func GetHotelsHandler(c *gin.Context, client clients.BookingClient, mu *sync.RWM
 		hotel := getHotels.Hotels.Hotels[i]
 		price, err := strconv.ParseFloat(hotel.MinRate, 64)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": "Error while parsing to supplier API response",
-				"error":   err.Error(),
-				"supplier": gin.H{
-					"request":  string(request),
-					"response": string(response),
+			c.JSON(http.StatusInternalServerError, appErrors.SupplierError{
+				ApiError: appErrors.ApiError{
+					Message: "Error while parsing supplier response",
+					Error:   err.Error(),
+				},
+				Supplier: appErrors.SupplierData{
+					Request:  string(request),
+					Response: string(response),
 				},
 			})
 			return
