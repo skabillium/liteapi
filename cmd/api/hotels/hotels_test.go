@@ -13,7 +13,8 @@ import (
 	"time"
 )
 
-func encodeQuery(u *url.URL, q hotels.GetHotelsQuery) error {
+// Encode GetHotelsQuery params to a URL
+func encodeGetHotelsQuery(u *url.URL, q hotels.GetHotelsQuery) error {
 	params := url.Values{}
 	params.Add("checkin", q.FormatCheckin())
 	params.Add("checkout", q.FormatCheckout())
@@ -36,8 +37,9 @@ func encodeQuery(u *url.URL, q hotels.GetHotelsQuery) error {
 	return nil
 }
 
+// Generic test for GET /hotels endpoint. For now only contains some invalid query params
+// and expects a 400 response. Could be extended with more cases.
 func TestGetHotels(t *testing.T) {
-
 	location, err := time.LoadLocation("Local")
 	if err != nil {
 		t.Error("Error while loading location")
@@ -75,7 +77,7 @@ func TestGetHotels(t *testing.T) {
 			t.Errorf("Error while parsing url %s", urlStr)
 		}
 
-		encodeQuery(u, q)
+		encodeGetHotelsQuery(u, q)
 		req, err := http.NewRequest("GET", u.String(), nil)
 		if err != nil {
 			t.Error("Error while initializing request", err)
